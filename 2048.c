@@ -1,52 +1,64 @@
+#define _POSIX_C_SOURCE 199309L
 #include <stdio.h>
 #include "board.h"
+#include <stdlib.h>
+#include <time.h>
 
 int main()
 {
-    board_t board = board_init();
+    srand(time(NULL));
 
-    board_fill_random(&board);
+    time_t start;
+    time(&start);
 
-    int play = 1;
-
-    setBufferedInput(0);
-    while (play && !board_check_game_over(&board))
+    for(int i=0; i < 1e6; i++)
     {
-        board_print(board);
+        board_t board = board_init();
 
-        /*char buffer[1024];*/
+        board_fill_random(&board);
 
-        /*if (fgets(buffer, 1024, stdin) == NULL)*/
-            /*break;*/
-
-        //switch(buffer[0])
-        int c = getchar();
-        printf("%d \n", c);
-        switch(c)
+        int play = 1;
+        while (play && !board_check_game_over(&board))
         {
-            case 'h':
-            case 68:
-                board_move(&board, LEFT);
-                break;
-            case 'j':
-            case 66:
-                board_move(&board, DOWN);
-                break;
-            case 'k':
-            case 65:
-                board_move(&board, UP);
-                break;
-            case 'l':
-            case 67:
-                board_move(&board, RIGHT);
-                break;
-            default:
-                play = 0;
-                break;
+            //board_print(board);
+
+            //int c = getchar();
+            int c = rand() % 4;
+            switch(c)
+            {
+                case 'h':
+                case 68:
+                case 0:
+                    board_move(&board, LEFT);
+                    break;
+                case 'j':
+                case 66:
+                case 1:
+                    board_move(&board, DOWN);
+                    break;
+                case 'k':
+                case 65:
+                case 2:
+                    board_move(&board, UP);
+                    break;
+                case 'l':
+                case 67:
+                case 3:
+                    board_move(&board, RIGHT);
+                    break;
+                default:
+                    play = 0;
+                    break;
+            }
         }
+        /*if (i % 1000 == 0)*/
+            /*printf("Iteration %i\n", i);*/
+        //printf("The game is over:\n");
+        //board_print(board);
     }
 
-    printf("The game is over:\n");
-    board_print(board);
-    setBufferedInput(1);
+    time_t end;
+    time(&end);
+
+    printf("Time elapsed is %0f\n", difftime(end, start));
 }

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <termios.h>
 #include <unistd.h>
 
 board_t board_init()
@@ -261,7 +260,6 @@ int board_move_up(board_t *board)
 
 void board_fill_random(board_t *board)
 {
-    printf("I should be adding a random square\n");
     int blank_cells = 0;
     for (int row=0; row < SIZE; row++)
     {
@@ -379,30 +377,6 @@ void board_draw(board_t *board)
             printf("%d", board->cells[row][col]);
         }
     }
-}
-
-void setBufferedInput(bool enable) {
-	static bool enabled = true;
-	static struct termios old;
-	struct termios new;
-
-	if (enable && !enabled) {
-		// restore the former settings
-		tcsetattr(STDIN_FILENO,TCSANOW,&old);
-		// set the new state
-		enabled = true;
-	} else if (!enable && enabled) {
-		// get the terminal settings for standard input
-		tcgetattr(STDIN_FILENO,&new);
-		// we want to keep the old setting to restore them at the end
-		old = new;
-		// disable canonical mode (buffered i/o) and local echo
-		new.c_lflag &=(~ICANON & ~ECHO);
-		// set the new settings immediately
-		tcsetattr(STDIN_FILENO,TCSANOW,&new);
-		// set the new state
-		enabled = false;
-	}
 }
 
 bool board_check_game_over(board_t *board)
