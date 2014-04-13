@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
 
 board_t board_init()
 {
@@ -18,9 +20,9 @@ void board_print(board_t board)
         for(int j=0; j < SIZE; j++)
         {
             if (board.cells[i][j])
-                printf("%d", 1 << board.cells[i][j]);
+                printf("   %5d   ", 1 << board.cells[i][j]);
             else
-                printf("-");
+                printf("   %5s   ", ".");
         }
         printf("\n");
     }
@@ -259,6 +261,7 @@ int board_move_up(board_t *board)
 
 void board_fill_random(board_t *board)
 {
+    printf("I should be adding a random square\n");
     int blank_cells = 0;
     for (int row=0; row < SIZE; row++)
     {
@@ -277,9 +280,7 @@ void board_fill_random(board_t *board)
         {
             if(!board->cells[row][col])
             {
-                random--;
-
-                if(random == 0)
+                if(random-- == 0)
                 {
                     int dice = rand() % 10;
 
@@ -365,4 +366,74 @@ uint64_t board_convert(board_t board)
     }
 
     return result;
+}
+
+void board_draw(board_t *board)
+{
+    printf("\033[H");
+
+    for (int row=0; row < SIZE; row++)
+    {
+        for (int col=0; col < SIZE; col++)
+        {
+            printf("%d", board->cells[row][col]);
+        }
+    }
+}
+
+void setBufferedInput(bool enable) {
+	static bool enabled = true;
+	static struct termios old;
+	struct termios new;
+
+	if (enable && !enabled) {
+		// restore the former settings
+		tcsetattr(STDIN_FILENO,TCSANOW,&old);
+		// set the new state
+		enabled = true;
+	} else if (!enable && enabled) {
+		// get the terminal settings for standard input
+		tcgetattr(STDIN_FILENO,&new);
+		// we want to keep the old setting to restore them at the end
+		old = new;
+		// disable canonical mode (buffered i/o) and local echo
+		new.c_lflag &=(~ICANON & ~ECHO);
+		// set the new settings immediately
+		tcsetattr(STDIN_FILENO,TCSANOW,&new);
+		// set the new state
+		enabled = false;
+	}
+}
+
+bool board_check_game_over(board_t *board)
+{
+    //check for horizontal moves.
+    for(int row=0; row < SIZE; row++)
+    {
+        for(int col=0; col < SIZE - 1; col++)
+        {
+            if(board->cells[row][col] == board->cells[row][col + 1])
+                return false;
+        }
+    }
+
+    for(int col=0; col < SIZE; col++)
+    {
+        for(int row=0; row < SIZE - 1; row++)
+        {
+            if(board->cells[row][col] == board->cells[row + 1][col])
+                return false;
+        }
+    }
+
+    for(int row=0; row < SIZE; row++)
+    {
+        for(int col=0; col < SIZE; col++)
+        {
+            if(!board->cells[row][col])
+                return false;
+        }
+    }
+
+    return true;
 }

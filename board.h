@@ -1,4 +1,6 @@
 #include <inttypes.h>
+#include <stdbool.h>
+
 #define SIZE 4
 
 #define UP 0
@@ -19,6 +21,10 @@ int board_move_left(board_t *board);
 int board_move_up(board_t *board);
 int board_move_down(board_t *board);
 
+bool board_check_game_over(board_t *board);
+
 void board_fill_random(board_t *board);
 
 uint64_t board_convert(board_t board);
+
+void setBufferedInput(bool);

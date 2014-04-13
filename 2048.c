@@ -9,28 +9,35 @@ int main()
 
     int play = 1;
 
-    while (play)
+    setBufferedInput(0);
+    while (play && !board_check_game_over(&board))
     {
         board_print(board);
-        printf("enter your move:");
 
-        char buffer[1024];
+        /*char buffer[1024];*/
 
-        if (fgets(buffer, 1024, stdin) == NULL)
-            break;
+        /*if (fgets(buffer, 1024, stdin) == NULL)*/
+            /*break;*/
 
-        switch(buffer[0])
+        //switch(buffer[0])
+        int c = getchar();
+        printf("%d \n", c);
+        switch(c)
         {
             case 'h':
+            case 68:
                 board_move(&board, LEFT);
                 break;
             case 'j':
+            case 66:
                 board_move(&board, DOWN);
                 break;
             case 'k':
+            case 65:
                 board_move(&board, UP);
                 break;
             case 'l':
+            case 67:
                 board_move(&board, RIGHT);
                 break;
             default:
@@ -39,4 +46,7 @@ int main()
         }
     }
 
+    printf("The game is over:\n");
+    board_print(board);
+    setBufferedInput(1);
 }
