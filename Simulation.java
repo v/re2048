@@ -1,7 +1,7 @@
 import java.util.Scanner;
 import java.util.Random;
 import java.io.*;
-public class Re2048
+public class Simulation
 {
     private static String ttyConfig;
 

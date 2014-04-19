@@ -419,4 +419,59 @@ public class Board
 
         return true;
     }
+
+    public int maxValue()
+    {
+        int max = 0;
+
+        for (int row=0; row < SIZE; row++)
+        {
+            for (int col=0; col < SIZE; col++)
+            {
+                if (max < this.cells[row][col])
+                    max = this.cells[row][col];
+            }
+        }
+
+        return max;
+    }
+
+    public int monotonicity()
+    {
+        int result = 0;
+
+        for(int row=0; row < SIZE; row++)
+        {
+            for(int col=0; col < SIZE - 1; col++)
+            {
+                result += Math.abs(this.cells[row][col] - this.cells[row][col + 1]);
+            }
+        }
+
+        for(int col=0; col < SIZE; col++)
+        {
+            for(int row=0; row < SIZE - 1; row++)
+            {
+                result += Math.abs(this.cells[row][col] - this.cells[row + 1][col]);
+            }
+        }
+
+        return result;
+    }
+
+    public int blankCells()
+    {
+        int result = 0;
+
+        for(int row=0; row < SIZE; row++)
+        {
+            for(int col=0; col < SIZE - 1; col++)
+            {
+                if(this.cells[row][col] == 0)
+                    result++;
+            }
+        }
+
+        return result;
+    }
 }
