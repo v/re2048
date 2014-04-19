@@ -11,7 +11,7 @@ int main()
     time_t start;
     time(&start);
 
-    for(int i=0; i < 1e6; i++)
+    for(int i=0; i < 1; i++)
     {
         board_t board = board_init();
 
@@ -20,10 +20,10 @@ int main()
         int play = 1;
         while (play && !board_check_game_over(&board))
         {
-            //board_print(board);
+            board_print(board);
 
-            //int c = getchar();
-            int c = rand() % 4;
+            int c = getchar();
+            //int c = rand() % 4;
             switch(c)
             {
                 case 'h':

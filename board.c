@@ -346,7 +346,7 @@ void board_move(board_t *board, int move)
         board_fill_random(board);
 }
 
-uint64_t board_convert(board_t board)
+uint64_t board_encode(board_t board)
 {
     uint64_t result = 0;
     for (int row=0; row < SIZE; row++)
