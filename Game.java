@@ -22,6 +22,12 @@ public class Game
             System.out.println(board);
             System.out.println(board.getValidMoves());
 
+            for(double d: board.neuralEncode())
+            {
+                System.out.print(d + ", ");
+            }
+            System.out.println();
+
             int c = getChar();
 
             switch (c)

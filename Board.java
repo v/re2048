@@ -397,6 +397,23 @@ public class Board
         return result;
     }
 
+    public double[] neuralEncode()
+    {
+        double[] result = new double[SIZE * SIZE + 1];
+
+        int count = 0;
+
+        for (int row=0; row < SIZE; row++)
+        {
+            for (int col=0; col < SIZE; col++)
+            {
+                result[count++] = this.cells[row][col] / 16.0;
+            }
+        }
+
+        return result;
+    }
+
     public void draw()
     {
         for (int row=0; row < SIZE; row++)

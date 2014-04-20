@@ -1,6 +1,12 @@
-CLASSPATH=${HOME}/code/re2048/libs/neuroph-core-2.8.jar
+CLASSPATH=${HOME}/code/re2048/libs/encog-core-3.1.0.jar:.
 all:
 	javac -cp ${CLASSPATH} *.java
 
+train:
+	java -cp ${CLASSPATH} NNLearn
+
+test:
+	java -cp ${CLASSPATH} Exploit
+
 clean:
-	rm *.class
+	rm -f *.class
