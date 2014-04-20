@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Board
 {
@@ -353,6 +354,26 @@ public class Board
             fillRandom();
     }
 
+    public int encodeKyle()
+    {
+        int result = 0;
+        for (int row=0; row < SIZE; row++)
+        {
+            int first = (this.cells[row][0] + this.cells[row][1]) / 2;
+            int second = (this.cells[row][2] + this.cells[row][3]) / 2;
+
+            int left_part = ((first << 28) >>> 24);
+            int right_part = ((second << 28) >>> 28);
+
+            char b = (char) (left_part | right_part);
+
+            result = result << 8;
+            result = result + b;
+        }
+
+        return result;
+    }
+
     public long encode()
     {
         long result = 0;
@@ -470,6 +491,42 @@ public class Board
                 if(this.cells[row][col] == 0)
                     result++;
             }
+        }
+
+        return result;
+    }
+
+    public ArrayList<MOVE> getValidMoves()
+    {
+        ArrayList<MOVE> result = new ArrayList<MOVE>();
+
+        for(MOVE move: MOVE.values())
+        {
+            //make the move.
+            int[][] copy = new int[SIZE][];
+
+            for(int i=0; i < this.cells.length; i++)
+                copy[i] = this.cells[i].clone();
+
+            this.move(move);
+
+            boolean equal = true;
+
+            for(int i=0; equal && i < SIZE; i++)
+            {
+                for (int j=0; equal && j < SIZE; j++)
+                {
+                    if (cells[i][j] != copy[i][j])
+                    {
+                        equal = false;
+                    }
+                }
+            }
+
+            this.cells = copy;
+
+            if(!equal)
+                result.add(move);
         }
 
         return result;

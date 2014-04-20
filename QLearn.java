@@ -1,8 +1,9 @@
 import java.util.Random;
 import java.util.HashMap;
 import java.util.EnumMap;
+import java.util.ArrayList;
 
-class QTable extends HashMap<Long, EnumMap<Board.MOVE, Double>>
+class QTable extends HashMap<Integer, EnumMap<Board.MOVE, Double>>
 {
 
     public QTable(int capacity)
@@ -33,9 +34,9 @@ class QTable extends HashMap<Long, EnumMap<Board.MOVE, Double>>
 
 public class QLearn
 {
-    private static final double EXPLORATION_RATE = 0.25;
-    private static final double LEARNING_RATE = 0.1;
-    private static final double DISCOUNT_FACTOR = 0.99;
+    private static final double EXPLORATION_RATE = 1;
+    private static final double LEARNING_RATE = 0.8;
+    private static final double DISCOUNT_FACTOR = 0.1;
 
     public static Random r;
 
@@ -50,42 +51,28 @@ public class QLearn
         int revisit_count = 0;
         int state_visit_count = 0;
 
-        for (int count=0; count < 1e5; count++)
+        for (int count=0; count < 1e6; count++)
         {
 
             Board board = new Board(r);
 
             board.fillRandom();
-            long previous = board.encode();
+            int previous = board.encodeKyle();
 
             while(!board.checkGameOver())
             {
                 double choice = r.nextDouble();
 
-                Board.MOVE move;
-
-                //figure out if we want to explore or exploit.
-                if (choice < EXPLORATION_RATE)
-                {
-                    move = getBestMove(qtable, previous);
-                }
-                else
-                {
-                    move = Board.MOVE.values()[r.nextInt(4)];
-                }
-
-                board.move(move);
-
-                long now = board.encode();
+                ArrayList<Board.MOVE> validMoves = board.getValidMoves();
 
                 if (!qtable.containsKey(previous))
                 {
                     EnumMap<Board.MOVE, Double> states = new EnumMap<Board.MOVE, Double>(Board.MOVE.class);
 
-                    states.put(Board.MOVE.LEFT, 0.0);
-                    states.put(Board.MOVE.RIGHT, 0.0);
-                    states.put(Board.MOVE.UP, 0.0);
-                    states.put(Board.MOVE.DOWN, 0.0);
+                    for(Board.MOVE valid_move: Board.MOVE.values())
+                    {
+                        states.put(valid_move, 0.0);
+                    }
 
                     qtable.put(previous, states);
                 }
@@ -94,24 +81,37 @@ public class QLearn
                     revisit_count++;
                 }
 
+                Board.MOVE move;
+                //figure out if we want to explore or exploit.
+                if (choice > EXPLORATION_RATE)
+                {
+                    move = getBestMove(qtable, previous, validMoves);
+                }
+                else
+                {
+                    move = validMoves.get(r.nextInt(validMoves.size()));
+                }
+
+                board.move(move);
+
                 state_visit_count++;
 
-                EnumMap<Board.MOVE, Double> states = qtable.get(previous);
+                double reward = 1;
 
-                double reward = 0.02;
+                final double BLANK_CELLS_FACTOR = 1;
+                final double MONOTONE_FACTOR = -1;
 
-                final double BLANK_CELLS_FACTOR = 600;
-                final double MONOTONE_FACTOR = 300;
-
-                reward += BLANK_CELLS_FACTOR * board.monotonicity();
-                reward += MONOTONE_FACTOR * board.blankCells();
-                reward += 1 << board.maxValue();
+                reward += MONOTONE_FACTOR * board.monotonicity() / 240.0;
+                reward += BLANK_CELLS_FACTOR * board.blankCells();
+                reward += 100 * ( 1 << board.maxValue());
 
                 if (board.checkGameOver())
                     reward = -1000;
 
-                double old_value = states.get(move);
-                double new_value = old_value + LEARNING_RATE * (reward + DISCOUNT_FACTOR * getOptimalValue(qtable, now) - old_value);
+                int now = board.encodeKyle();
+
+                double old_value = qtable.get(previous).get(move);
+                double new_value = old_value + LEARNING_RATE * (reward + DISCOUNT_FACTOR * getOptimalValue(qtable, now, board) - old_value);
 
                 qtable.get(previous).put(move, new_value);
 
@@ -138,17 +138,12 @@ public class QLearn
         System.out.println(qtable.size());
     }
 
-    public static Board.MOVE getBestMove(QTable qtable, long state)
+    public static Board.MOVE getBestMove(QTable qtable, int state, ArrayList<Board.MOVE> validMoves)
     {
-        if (!qtable.containsKey(state))
-        {
-            return Board.MOVE.values()[r.nextInt(4)];
-        }
-
         double max = 0;
-        Board.MOVE best_move = Board.MOVE.LEFT;
+        Board.MOVE best_move = validMoves.get(r.nextInt(validMoves.size()));
 
-        for(Board.MOVE move: Board.MOVE.values())
+        for(Board.MOVE move: validMoves)
         {
             double value = qtable.get(state).get(move);
 
@@ -162,7 +157,7 @@ public class QLearn
         return best_move;
     }
 
-    public static double getOptimalValue(QTable qtable, long state)
+    public static double getOptimalValue(QTable qtable, int state, Board board)
     {
         if (!qtable.containsKey(state))
         {
@@ -170,8 +165,9 @@ public class QLearn
         }
 
         double max = 0;
+        ArrayList<Board.MOVE> validMoves = board.getValidMoves();
 
-        for(Board.MOVE move: Board.MOVE.values())
+        for(Board.MOVE move: validMoves)
         {
             double value = qtable.get(state).get(move);
 
