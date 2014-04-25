@@ -14,6 +14,17 @@ public class Board
         this.r = r;
     }
 
+    public Board(Random r, int[][] cells)
+    {
+        this.r = r;
+        this.cells = new int[cells.length][];
+
+        for (int i=0; i < cells.length; i++)
+        {
+            this.cells[i] = cells[i].clone();
+        }
+    }
+
     public String toString()
     {
         String result = "";
@@ -407,7 +418,7 @@ public class Board
         {
             for (int col=0; col < SIZE; col++)
             {
-                result[count++] = this.cells[row][col] / 16.0;
+                result[count++] = this.cells[row][col];
             }
         }
 
