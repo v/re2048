@@ -262,23 +262,7 @@ class Board:
 
 
     def check_game_over(self):
-        #check for horizontal moves.
-        for row in range(0, SIZE):
-            for col in range(0, SIZE - 1):
-                if self.cells[row][col] == self.cells[row][col + 1]:
-                    return False
-
-        for col in range(0, SIZE):
-            for row in range(0, SIZE - 1):
-                if self.cells[row][col] == self.cells[row + 1][col]:
-                    return False
-
-        for row in range(0, SIZE):
-            for col in range(0, SIZE):
-                if self.cells[row][col] == 0:
-                    return False
-
-        return True
+        return len(self.valid_moves()) == 0
 
     def max_value(self):
         result = 0
@@ -291,27 +275,34 @@ class Board:
     def valid_moves(self):
         result = []
 
-        for move in Move:
-            cells = deepcopy(self.cells)
+        moves = set()
 
-            self.move(move)
+        # check for horizontal moves.
+        for row in range(SIZE):
+            for col in range(SIZE - 1):
+                # both are non blank.
+                if self.cells[row][col] > 0 and self.cells[row][col] == self.cells[row][col + 1]:
+                    moves.add(Move.RIGHT)
+                    moves.add(Move.LEFT)
+                # right guy is blank, left guy is not.
+                elif self.cells[row][col] > 0 and self.cells[row][col + 1] == 0:
+                    moves.add(Move.RIGHT)
+                elif self.cells[row][col] == 0 and self.cells[row][col + 1] > 0:
+                    moves.add(Move.LEFT)
 
-            equal = True
 
-            for i in range(SIZE):
-                for j in range(SIZE):
-                    if cells[i][j] != self.cells[i][j]:
-                        equal = False
-                        break
-                if not equal:
-                    break
+        # check for vertical moves.
+        for col in range(SIZE):
+            for row in range(SIZE - 1):
+                if self.cells[row][col] > 0 and self.cells[row][col] == self.cells[row + 1][col]:
+                    moves.add(Move.UP)
+                    moves.add(Move.DOWN)
+                elif self.cells[row][col] > 0 and self.cells[row + 1][col] == 0:
+                    moves.add(Move.DOWN)
+                elif self.cells[row][col] == 0 and self.cells[row + 1][col] > 0:
+                    moves.add(Move.UP)
 
-            self.cells = cells
-
-            if not equal:
-                result.append(move)
-
-        return result
+        return list(moves)
 
     def state(self):
         result = [1]

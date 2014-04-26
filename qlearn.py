@@ -5,13 +5,14 @@ import numpy as np
 from sklearn.linear_model.stochastic_gradient import SGDRegressor
 from sklearn.externals import joblib
 
+LINEAR_REGULARIZATION = 0.01
 
-EXPLORATION_RATE = 0.9
-ITERATIONS = int(1e3)
-Q_LEARNING_RATE = 0.5
-Q_DISCOUNT_FACTOR = 0.5
+EXPLORATION_RATE = 0.8
+ITERATIONS = int(1e4)
+Q_LEARNING_RATE = 0.1
+Q_DISCOUNT_FACTOR = 0.9
 
-qtable = SGDRegressor(alpha=0.01)
+qtable = SGDRegressor(loss="squared_loss", alpha=LINEAR_REGULARIZATION)
 qtable.fit([[1]*18], np.array([1]))
 
 def run_game():
