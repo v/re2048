@@ -7,19 +7,21 @@ Move = Enum('RIGHT', 'LEFT', 'UP', 'DOWN')
 class Board:
 
     def __init__(self):
-        self.cells = [0] * SIZE * SIZE
+        self.cells = []
+
+        for i in range(0, SIZE):
+            self.cells.append([0] * SIZE)
 
     def __str__(self):
         result = ""
 
         for i in range(0, SIZE):
             for j in range(0, SIZE):
-                index = i * SIZE + j
-
                 if self.cells[i][j]:
-                    result += "  %5d  " % (self.cells[index])
+                    result += "  %5d  " % (1 << self.cells[i][j])
                 else:
                     result += "  %5s  " % "."
+            result += "\n"
 
         return result
 
@@ -55,20 +57,20 @@ class Board:
     def slide_left(self, row):
         count = 0
         blank = 0
-        while blank < size:
-            while blank < size:
+        while blank < SIZE:
+            while blank < SIZE:
                 if self.cells[row][blank] == 0:
                     break
                 blank += 1
 
             nonblank = blank + 1
 
-            while nonblank < size:
+            while nonblank < SIZE:
                 if self.cells[row][nonblank] != 0:
                     break
                 nonblank += 1
 
-            if  blank >= size or nonblank >= size:
+            if blank >= SIZE or nonblank >= SIZE:
                 break
 
             self.cells[row][blank] = self.cells[row][nonblank]
@@ -142,7 +144,7 @@ class Board:
         count = 0
 
         for row in range(0, SIZE):
-            count += slide_right(row)
+            count += self.slide_right(row)
 
             # sums up things next to each other.
             for col in range(SIZE-1, 0, -1):
@@ -154,17 +156,17 @@ class Board:
 
                         count += 1
 
-            count += slide_right(row)
+            count += self.slide_right(row)
         return count
 
     def move_left(self):
         count = 0
 
         for row in range(0, SIZE):
-            count += slide_left(row)
+            count += self.slide_left(row)
 
             #sums up things next to each other.
-            for col in range(0, SIZE):
+            for col in range(0, SIZE - 1):
                 if self.cells[row][col] != 0:
                     #we have a collision.
                     if self.cells[row][col] == self.cells[row][col + 1]:
@@ -173,16 +175,16 @@ class Board:
 
                         count += 1
 
-            count += slide_left(row)
+            count += self.slide_left(row)
         return count
 
     def move_up(self):
         count = 0
         for col in range(0, SIZE):
-            count += slide_up(col)
+            count += self.slide_up(col)
 
             #sums up things next to each other.
-            for row in range(0, SIZE):
+            for row in range(0, SIZE - 1):
                 if self.cells[row][col] != 0:
                     #we have a collision.
                     if self.cells[row][col] == self.cells[row + 1][col]:
@@ -191,7 +193,7 @@ class Board:
 
                         count += 1
 
-            count += slideUp(col)
+            count += self.slide_up(col)
         return count
 
     def fill_random(self):
@@ -201,13 +203,13 @@ class Board:
                 if self.cells[row][col] == 0:
                     blank_cells += 1
 
-        rand = random.nextint(0, blank_cells)
+        rand = random.randrange(0, blank_cells)
 
         for row in range(0, SIZE):
             for col in range(0, SIZE):
                 if self.cells[row][col] == 0:
                     if rand == 0:
-                        dice = r.nextInt(10)
+                        dice = random.randrange(0, 10)
 
                         if  dice == 9:
                             self.cells[row][col] = 2
@@ -219,7 +221,7 @@ class Board:
     def move_down(self):
         count = 0
         for col in range(0, SIZE):
-            count += slide_down(col)
+            count += self.slide_down(col)
 
             #sums up things next to each other.
             for row in range(SIZE - 1, 0, -1):
@@ -231,11 +233,11 @@ class Board:
 
                         count += 1
 
-            count += slide_down(col)
+            count += self.slide_down(col)
 
         return count
 
-    def move(move):
+    def move(self, move):
         count = 0
         if move == Move.RIGHT:
             count = self.move_right()
@@ -249,3 +251,30 @@ class Board:
         if count > 0:
             self.fill_random()
 
+
+    def check_game_over(self):
+        #check for horizontal moves.
+        for row in range(0, SIZE):
+            for col in range(0, SIZE - 1):
+                if self.cells[row][col] == self.cells[row][col + 1]:
+                    return False
+
+        for col in range(0, SIZE):
+            for row in range(0, SIZE - 1):
+                if self.cells[row][col] == self.cells[row + 1][col]:
+                    return False
+
+        for row in range(0, SIZE):
+            for col in range(0, SIZE):
+                if self.cells[row][col] == 0:
+                    return False
+
+        return True
+
+    def max_value(self):
+        result = 0
+
+        for row in self.cells:
+            result = max(result, max(row))
+
+        return result
