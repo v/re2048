@@ -9,6 +9,7 @@ def main():
 
     while not board.check_game_over():
         print board
+        print board.valid_moves()
         move = getch()
 
         if move in ('w', 'k'):

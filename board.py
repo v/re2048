@@ -1,5 +1,7 @@
 from enum import Enum
 import random
+from copy import deepcopy
+
 SIZE = 4
 
 Move = Enum('RIGHT', 'LEFT', 'UP', 'DOWN')
@@ -11,6 +13,13 @@ class Board:
 
         for i in range(0, SIZE):
             self.cells.append([0] * SIZE)
+
+    @classmethod
+    def from_cells(cls, cells):
+        board = Board()
+        board.cells = cells
+
+        return board
 
     def __str__(self):
         result = ""
@@ -276,5 +285,38 @@ class Board:
 
         for row in self.cells:
             result = max(result, max(row))
+
+        return result
+
+    def valid_moves(self):
+        result = []
+
+        for move in Move:
+            cells = deepcopy(self.cells)
+
+            self.move(move)
+
+            equal = True
+
+            for i in range(SIZE):
+                for j in range(SIZE):
+                    if cells[i][j] != self.cells[i][j]:
+                        equal = False
+                        break
+                if not equal:
+                    break
+
+            self.cells = cells
+
+            if not equal:
+                result.append(move)
+
+        return result
+
+    def state(self):
+        result = [1]
+
+        for row in self.cells:
+            result += row
 
         return result
