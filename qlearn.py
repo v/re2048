@@ -5,10 +5,10 @@ import numpy as np
 from sklearn.linear_model.stochastic_gradient import SGDRegressor
 from sklearn.externals import joblib
 
-LINEAR_REGULARIZATION = 0.01
+LINEAR_REGULARIZATION = 0.0001
 
-EXPLORATION_RATE = 0.8
-ITERATIONS = int(1e4)
+EXPLORATION_RATE = 0.2
+ITERATIONS = int(5e4)
 Q_LEARNING_RATE = 0.1
 Q_DISCOUNT_FACTOR = 0.9
 
