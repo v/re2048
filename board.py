@@ -17,7 +17,7 @@ class Board:
     @classmethod
     def from_cells(cls, cells):
         board = Board()
-        board.cells = cells
+        board.cells = deepcopy(cells)
 
         return board
 
@@ -311,3 +311,78 @@ class Board:
             result += row
 
         return result
+
+    def jaggedness(self):
+        result = 0
+
+        for row in range(SIZE):
+            for col in range(SIZE - 1):
+                result += abs(self.cells[row][col] - self.cells[row][col + 1]) ** 2
+
+
+        for col in range(SIZE):
+            for row in range(SIZE - 1):
+                result += abs(self.cells[row][col] - self.cells[row + 1][col]) ** 2
+
+        return result
+
+    def monotonicity(self):
+        totals = [0, 0, 0, 0]
+
+        for x in range(SIZE):
+            curr_square = 0
+            next_square = curr_square + 1
+
+            while next_square < 4:
+                while next_square < 4 and self.cells[x][next_square] == 0:
+                    next_square += 1
+
+                if next_square >= 4:
+                    next_square -= 1
+
+                curr_value = self.cells[x][curr_square]
+                next_value = self.cells[x][next_square]
+
+                if curr_value > next_value:
+                    totals[0] += next_value - curr_value
+
+                elif next_value > curr_value:
+                    totals[1] += curr_value - next_value
+
+                curr_square = next_square
+                next_square += 1
+
+        for y in range(SIZE):
+            curr_square = 0
+            next_square = curr_square + 1
+            while next_square < 4:
+                while next < 4 and self.cells[next_square][y] == 0:
+                    next_square += 1
+
+                if next_square >= 4:
+                    next_square -= 1
+
+                curr_value = self.cells[curr_square][y]
+                next_value = self.cells[next_square][y]
+
+                if curr_value > next_value:
+                    totals[2] += next_value - curr_value
+                elif next_value > curr_value:
+                    totals[3] += curr_value - next_value
+
+                curr_square = next_square
+                next_square += 1
+
+        return max(totals[0] + totals[1], totals[2] + totals[3])
+
+    def blank_cells(self):
+        count = 0
+
+        for i in range(SIZE):
+            for j in range(SIZE):
+                if self.cells[i][j] == 0:
+                    count += 1
+
+        return count
+
+

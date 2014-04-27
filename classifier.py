@@ -18,6 +18,8 @@ print model.predict([[1]])
 print model.predict([[2]])
 print model.predict([[5]])
 
+print model.score(X, Y)
+
 x = []
 for i in range(0, 100):
     x.append([2])
@@ -31,6 +33,8 @@ print model.predict([[1]])
 print model.predict([[2]])
 print model.predict([[5]])
 
+print model.score(np.array([[1], [1]]), np.array([1, 1]))
+
 joblib.dump(model, 'fuck.pk1')
 
-import ipdb; ipdb.set_trace()
+import pdb; pdb.set_trace()

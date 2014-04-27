@@ -9,7 +9,8 @@ def main():
 
     while not board.check_game_over():
         print board
-        print board.valid_moves()
+        print board.monotonicity()
+        print board.jaggedness()
         move = getch()
 
         if move in ('w', 'k'):
